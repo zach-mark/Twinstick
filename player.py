@@ -18,10 +18,11 @@ class Player():
         self.x=30
         self.y=30
         
-        
+        self.shot_cooldown=20
+        self.cooldown_timer=0
         #game engine setup
         self.master=master
-        
+        self.can_shoot=False
     def user_inputs(self, axis_a,axis_b):
         """
         Parameters
@@ -46,20 +47,17 @@ class Player():
         #SHOOTING INPUT
         trying_to_shoot=False
         
-        
         if abs(axis_b[0])>shooting_sensitivity:
-            shoot_dir_x=axis_b[0]
             trying_to_shoot=True
-        else:
-            shoot_dir_x=0
         if abs(axis_b[1])>shooting_sensitivity:
-            self.y+=axis_a[1]*self.speed
-            shoot_dir_y=axis_b[1]
             trying_to_shoot=True
-        else:
-            shoot_dir_y=0
             
-        if trying_to_shoot==True:
+        if trying_to_shoot==True and self.can_shoot==True:
+            shoot_dir_x=axis_b[0]
+            shoot_dir_y=axis_b[1]
+            
+            self.can_shoot=False
+            self.cooldown_timer=self.shot_cooldown
             self.master.BULLETS.append(
                 Bullet((self.x+15,self.y+15),
                        (shoot_dir_x,shoot_dir_y)))
@@ -67,7 +65,10 @@ class Player():
     
     def logic(self):
         
-        pass
+        if self.cooldown_timer>0:
+            self.cooldown_timer-=1
+        else:
+            self.can_shoot=True
     
     def draw(self, DISPLAY):
         
@@ -77,7 +78,7 @@ class Player():
 class Bullet():
     def __init__(self, xy, angle):
         #bullet_speed
-        self.speed=20
+        self.speed=15
         self.life=10
         
         self.x=xy[0]

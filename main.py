@@ -82,8 +82,13 @@ def user_input():
 
 
 def logic():
+    
+    game.PLAYER.logic()
+    
     for bullet in game.BULLETS:
         bullet.logic()
+    
+    
 
 def rendering():
     SCREEN.fill((200,191,231))
