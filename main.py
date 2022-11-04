@@ -34,7 +34,13 @@ AXIS_B=(0,0)
 CLOCK = pygame.time.Clock()
 FPS= 60
 
-PLAYER=player.Player()
+#Game Instances
+class GAME():
+    def __init__(self):
+        self.ENEMIES=[]
+        self.BULLETS=[]
+        self.PLAYER=player.Player(self)
+
 
 
 def main():
@@ -70,18 +76,23 @@ def user_input():
         
             
     
-    PLAYER.user_inputs(AXIS_A, AXIS_B)
+    game.PLAYER.user_inputs(AXIS_A, AXIS_B)
         
     
 
 
 def logic():
-    pass
+    for bullet in game.BULLETS:
+        bullet.logic()
 
 def rendering():
     SCREEN.fill((200,191,231))
     
-    PLAYER.draw(SCREEN)
+    
+    for bullet in game.BULLETS:
+        bullet.draw(SCREEN)
+        
+    game.PLAYER.draw(SCREEN)
     
     pygame.display.update()
 
@@ -91,6 +102,7 @@ def session_kill():
     sys.exit()
 
 
+game=GAME()
 
 while True:
     main()
