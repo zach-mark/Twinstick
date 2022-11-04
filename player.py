@@ -14,6 +14,7 @@ import numpy as np
 moving_antidrift_setting=0.25
 shooting_sensitivity=0.1
 
+
 class Player():
     def __init__(self, master):
         #player stats
@@ -24,9 +25,19 @@ class Player():
         
         self.shot_cooldown=20
         self.cooldown_timer=0
+        
+        self.bullet_mode="Spread4"
         #game engine setup
         self.master=master
         self.can_shoot=False
+        
+        #animation_setup
+        self.facing="Right"
+        self.frame=0
+        self.frame_timing=15
+        self.arm_distance=15
+        
+        self.gun_angle=0
     def user_inputs(self, axis_a,axis_b):
         """
         Parameters
@@ -44,6 +55,7 @@ class Player():
         
         #MOVEMENT INPUT
         if abs(axis_a[0])>moving_antidrift_setting:
+                        
             self.x+=axis_a[0]*self.speed
         if abs(axis_a[1])>moving_antidrift_setting:
             self.y+=axis_a[1]*self.speed
@@ -85,11 +97,39 @@ class Player():
             ang2 = np.arctan2(*p2[::-1])
             angle_shot=np.rad2deg((ang1 - ang2) % (2 * np.pi))
             
+            self.gun_angle=angle_shot
             #ANGLE SHOT should be used for all calculating of special bullets
             
-            self.master.BULLETS.append(
-                Bullet((self.x,self.y),
-                       angle_shot))
+            if self.bullet_mode=="Normal":
+                self.master.BULLETS.append(
+                    Bullet((self.x,self.y),
+                           angle_shot))
+            
+            elif self.bullet_mode=="Spread2":
+                
+                self.master.BULLETS.append(
+                    Bullet((self.x,self.y),
+                           angle_shot-5))
+                self.master.BULLETS.append(
+                    Bullet((self.x,self.y),
+                           angle_shot+5))
+            
+            elif self.bullet_mode=="Spread4":
+                
+                self.master.BULLETS.append(
+                    Bullet((self.x,self.y),
+                           angle_shot-5))
+                self.master.BULLETS.append(
+                    Bullet((self.x,self.y),
+                           angle_shot+5))
+                self.master.BULLETS.append(
+                    Bullet((self.x,self.y),
+                           angle_shot-2.5))
+                self.master.BULLETS.append(
+                    Bullet((self.x,self.y),
+                           angle_shot+2.5))
+                
+            
         
     
     def logic(self):
@@ -101,14 +141,37 @@ class Player():
     
     def draw(self, DISPLAY):
         
-        pygame.draw.circle(DISPLAY, (255,255,255), [self.x,self.y], 15)
+        if 90>=self.gun_angle>=0 or 270<self.gun_angle<=360:
+            arm_rotate=pygame.transform.rotate(self.master.sprites.character_sheet["Right Arm"], self.gun_angle)
+            self.facing="Right"
+        else:
+            arm_rotate=pygame.transform.rotate(self.master.sprites.character_sheet["Left Arm"], self.gun_angle-180)
+            self.facing="Left"
+        
+        theta=(self.gun_angle/180)*pi
+    
+        if 270>=self.gun_angle>=90:
+            val=-1
+        else:
+            val=1
+        hypotenuse=self.arm_distance
+        
+        y=hypotenuse*sin(theta)
+        
+        
+        x=sqrt(hypotenuse**2 - y**2)*val
+        
+        
+        
+        DISPLAY.blit( self.master.sprites.character_sheet[self.facing][0], (self.x,self.y))
+        DISPLAY.blit(arm_rotate, (self.x+x,self.y-y))
 
 
 class Bullet():
     def __init__(self, xy, angle):
         #bullet_speed
         self.speed=10
-        self.life=10
+        self.life=45
         
         self.x=xy[0]
         self.y=xy[1]
@@ -133,9 +196,12 @@ class Bullet():
         
         
     def logic(self):
+        self.life-=1
+        
         self.x+=self.vector[0]*self.speed
         self.y+=self.vector[1]*self.speed
     
     def draw(self, DISPLAY):
-        pygame.draw.rect(DISPLAY, (255,0,0), [self.x,self.y,3,3])
+        
+        pygame.draw.circle(DISPLAY, (255,255,255), [self.x,self.y], 3)
         

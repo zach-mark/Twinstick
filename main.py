@@ -9,13 +9,14 @@ TWINSTICK
 
 import pygame, sys
 
-import player
+import player, sprite_sys
 
 pygame.init()
 
 # Setup the screen
-SCREEN_SIZE=[500,400]
+SCREEN_SIZE=[800,600]
 SCREEN = pygame.display.set_mode(SCREEN_SIZE)
+#SCREEN = pygame.display.set_mode(SCREEN_SIZE, pygame.FULLSCREEN)
 
 pygame.display.set_caption("Twinstick")
 
@@ -37,6 +38,7 @@ FPS= 60
 #Game Instances
 class GAME():
     def __init__(self):
+        self.sprites=sprite_sys.Sprites()
         self.ENEMIES=[]
         self.BULLETS=[]
         self.PLAYER=player.Player(self)
@@ -87,6 +89,13 @@ def logic():
     
     for bullet in game.BULLETS:
         bullet.logic()
+        
+    i=len(game.BULLETS)-1
+    while i>=0:
+        if game.BULLETS[i].life<1:
+            del game.BULLETS[i]
+        i-=1
+        
     
     
 
