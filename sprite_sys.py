@@ -10,6 +10,7 @@ import pygame
 class Sprites():
     def __init__(self):
         
+        self.pause=pygame.image.load("Sprites/Pause Logo.png").convert_alpha()
         #character
         player_sheet=pygame.image.load("Sprites/Character_Sheet.png").convert_alpha()
         

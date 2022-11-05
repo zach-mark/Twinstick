@@ -38,6 +38,8 @@ FPS= 60
 #Game Instances
 class GAME():
     def __init__(self):
+        self.paused=False
+        
         self.sprites=sprite_sys.Sprites()
         self.ENEMIES=[]
         self.BULLETS=[]
@@ -49,6 +51,19 @@ class GAME():
         self.obstacle_rects=[]
         
         self.PARTICLES=[]
+    def pause(self):
+        
+        if self.paused==True:
+            self.paused=False
+        else:
+            self.paused=True
+        
+    def pause_logic(self):
+        pass
+    
+    def pause_render(self):
+         
+        SCREEN.blit(self.sprites.pause,(0,0))
     
     def update_collisions(self):
         #enemies
@@ -77,7 +92,12 @@ class GAME():
 def main():
     
     user_input()
-    logic()
+    
+    if game.paused==False:
+        logic()
+    else:
+        game.pause_logic()
+        
     rendering()
     CLOCK.tick(FPS)
     
@@ -86,6 +106,12 @@ def user_input():
     for event in pygame.event.get():
         if event.type == pygame.QUIT: # If user clicked close.
             session_kill()
+        elif event.type == pygame.JOYBUTTONDOWN:
+            if event.button==7:
+                game.pause()
+                print("Pause")
+        elif event.type == pygame.JOYBUTTONUP:
+            pass
     
     
     #joystick code
@@ -106,8 +132,8 @@ def user_input():
         
         
             
-    
-    game.PLAYER.user_inputs(AXIS_A, AXIS_B)
+    if game.paused==False:
+        game.PLAYER.user_inputs(AXIS_A, AXIS_B)
         
     
 
@@ -148,8 +174,8 @@ def logic():
         
         
     
-    new_spawn=random.randint(0, 60)
-    if new_spawn==50:
+    new_spawn=random.randint(0, 10)
+    if new_spawn==1:
         game.ENEMIES.append(enemies.Zombie(game,(random.randint(0, SCREEN_SIZE[0]),
                                                  random.randint(0, SCREEN_SIZE[1]))))
     
@@ -166,10 +192,11 @@ def rendering():
     for enemy in game.ENEMIES:
         enemy.draw(SCREEN)
         
-        
-    
-        
     game.PLAYER.draw(SCREEN)
+    
+    
+    if game.paused==True:
+        game.pause_render()
     
     pygame.display.update()
 
