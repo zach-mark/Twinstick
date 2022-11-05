@@ -23,7 +23,7 @@ class Player():
         self.x=30
         self.y=30
         
-        self.shot_cooldown=20
+        self.shot_cooldown=5
         self.cooldown_timer=0
         
         self.bullet_mode="Spread4"
@@ -35,7 +35,9 @@ class Player():
         self.facing="Right"
         self.frame=0
         self.frame_timing=15
+        self.frame_tick=0
         self.arm_distance=15
+        self.gun_out=False
         
         self.gun_angle=0
     def user_inputs(self, axis_a,axis_b):
@@ -67,13 +69,17 @@ class Player():
             trying_to_shoot=True
         if abs(axis_b[1])>shooting_sensitivity:
             trying_to_shoot=True
+        if trying_to_shoot==True:
+            self.gun_out=True
             
-        if trying_to_shoot==True and self.can_shoot==True:
+            
+        
+            
+            
             shoot_dir_x=axis_b[0]
             shoot_dir_y=axis_b[1]
             
-            self.can_shoot=False
-            self.cooldown_timer=self.shot_cooldown
+            
             
             
             entity_1= (0,0)
@@ -99,35 +105,39 @@ class Player():
             
             self.gun_angle=angle_shot
             #ANGLE SHOT should be used for all calculating of special bullets
-            
-            if self.bullet_mode=="Normal":
-                self.master.BULLETS.append(
-                    Bullet((self.x,self.y),
-                           angle_shot))
-            
-            elif self.bullet_mode=="Spread2":
+            if self.can_shoot==True:
+                self.can_shoot=False
+                self.cooldown_timer=self.shot_cooldown
+                if self.bullet_mode=="Normal":
+                    self.master.BULLETS.append(
+                        Bullet((self.x,self.y),
+                               angle_shot))
                 
-                self.master.BULLETS.append(
-                    Bullet((self.x,self.y),
-                           angle_shot-5))
-                self.master.BULLETS.append(
-                    Bullet((self.x,self.y),
-                           angle_shot+5))
-            
-            elif self.bullet_mode=="Spread4":
+                elif self.bullet_mode=="Spread2":
+                    
+                    self.master.BULLETS.append(
+                        Bullet((self.x,self.y),
+                               angle_shot-5))
+                    self.master.BULLETS.append(
+                        Bullet((self.x,self.y),
+                               angle_shot+5))
                 
-                self.master.BULLETS.append(
-                    Bullet((self.x,self.y),
-                           angle_shot-5))
-                self.master.BULLETS.append(
-                    Bullet((self.x,self.y),
-                           angle_shot+5))
-                self.master.BULLETS.append(
-                    Bullet((self.x,self.y),
-                           angle_shot-2.5))
-                self.master.BULLETS.append(
-                    Bullet((self.x,self.y),
-                           angle_shot+2.5))
+                elif self.bullet_mode=="Spread4":
+                    
+                    self.master.BULLETS.append(
+                        Bullet((self.x,self.y),
+                               angle_shot-5))
+                    self.master.BULLETS.append(
+                        Bullet((self.x,self.y),
+                               angle_shot+5))
+                    self.master.BULLETS.append(
+                        Bullet((self.x,self.y),
+                               angle_shot-2.5))
+                    self.master.BULLETS.append(
+                        Bullet((self.x,self.y),
+                               angle_shot+2.5))
+        else:
+            self.gun_out=False
                 
             
         
@@ -164,7 +174,8 @@ class Player():
         
         
         DISPLAY.blit( self.master.sprites.character_sheet[self.facing][0], (self.x,self.y))
-        DISPLAY.blit(arm_rotate, (self.x+x,self.y-y))
+        if self.gun_out==True:
+            DISPLAY.blit(arm_rotate, (self.x+x,self.y-y))
 
 
 class Bullet():
@@ -176,6 +187,11 @@ class Bullet():
         self.x=xy[0]
         self.y=xy[1]
         
+        self.damage=1
+        
+        self.hit_box=[-3,-3,6,6]
+        self.my_rect=pygame.Rect(self.x+self.hit_box[0], self.y+self.hit_box[1],
+                                 self.hit_box[2], self.hit_box[3]) 
         
     
         theta=(angle/180)*pi
@@ -200,6 +216,11 @@ class Bullet():
         
         self.x+=self.vector[0]*self.speed
         self.y+=self.vector[1]*self.speed
+        
+        self.my_rect=pygame.Rect(self.x+self.hit_box[0], self.y+self.hit_box[1],
+                                 self.hit_box[2], self.hit_box[3]) 
+        
+        
     
     def draw(self, DISPLAY):
         

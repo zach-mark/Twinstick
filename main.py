@@ -7,9 +7,9 @@ Created on Fri Nov  4 12:00:26 2022
 TWINSTICK
 """
 
-import pygame, sys
+import pygame, sys, random
 
-import player, sprite_sys
+import player, sprite_sys, enemies
 
 pygame.init()
 
@@ -42,6 +42,35 @@ class GAME():
         self.ENEMIES=[]
         self.BULLETS=[]
         self.PLAYER=player.Player(self)
+        
+        self.enemy_rects=[]
+        self.bullet_rects=[]
+        self.bullet_dict={}
+        self.obstacle_rects=[]
+        
+        self.PARTICLES=[]
+    
+    def update_collisions(self):
+        #enemies
+        
+        self.enemy_rects=[]
+        for enemy in self.ENEMIES:
+            if enemy.alive==True:
+                rect=pygame.Rect(enemy.x+enemy.hit_box[0], enemy.y+enemy.hit_box[1],
+                                 enemy.hit_box[2], enemy.hit_box[3])
+                self.enemy_rects.append(rect)
+        
+        #bullets
+        self.bullet_rects=[]
+        self.bullet_dict={}
+        for bullet in self.BULLETS:
+            rect=pygame.Rect(bullet.x+bullet.hit_box[0], bullet.y+bullet.hit_box[1],
+                             bullet.hit_box[2], bullet.hit_box[3])
+            self.bullet_rects.append(rect)
+            bullet_index=len(self.bullet_rects)-1
+            self.bullet_dict[bullet_index]=bullet
+        
+        
 
 
 
@@ -87,6 +116,8 @@ def logic():
     
     game.PLAYER.logic()
     
+    game.update_collisions()
+    
     for bullet in game.BULLETS:
         bullet.logic()
         
@@ -97,14 +128,46 @@ def logic():
         i-=1
         
     
+    for enemy in game.ENEMIES:
+        enemy.logic()
+        
+    i=len(game.ENEMIES)-1
+    while i>=0:
+        if game.ENEMIES[i].del_self==True:
+            del game.ENEMIES[i]
+        i-=1
+        
+    for particles in game.PARTICLES:
+        particles.logic()
+    i=len(game.PARTICLES)-1
+    while i>=0:
+        if game.PARTICLES[i].life<1:
+            del game.PARTICLES[i]
+        i-=1
+        
+        
+        
+    
+    new_spawn=random.randint(0, 60)
+    if new_spawn==50:
+        game.ENEMIES.append(enemies.Zombie(game,(random.randint(0, SCREEN_SIZE[0]),
+                                                 random.randint(0, SCREEN_SIZE[1]))))
+    
     
 
 def rendering():
     SCREEN.fill((200,191,231))
     
-    
+    for particle in game.PARTICLES:
+        particle.draw(SCREEN)
+        
     for bullet in game.BULLETS:
         bullet.draw(SCREEN)
+    for enemy in game.ENEMIES:
+        enemy.draw(SCREEN)
+        
+        
+    
         
     game.PLAYER.draw(SCREEN)
     
@@ -118,5 +181,6 @@ def session_kill():
 
 game=GAME()
 
+game.ENEMIES.append(enemies.Zombie(game,(400,200)))
 while True:
     main()
