@@ -174,7 +174,7 @@ def logic():
         
         
     
-    new_spawn=random.randint(0, 10)
+    new_spawn=random.randint(0, 4)
     if new_spawn==1:
         game.ENEMIES.append(enemies.Zombie(game,(random.randint(0, SCREEN_SIZE[0]),
                                                  random.randint(0, SCREEN_SIZE[1]))))

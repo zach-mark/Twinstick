@@ -23,7 +23,7 @@ class Player():
         self.x=30
         self.y=30
         
-        self.shot_cooldown=5
+        self.shot_cooldown=2
         self.cooldown_timer=0
         
         self.bullet_mode="Spread4"
@@ -187,7 +187,7 @@ class Bullet():
         self.x=xy[0]
         self.y=xy[1]
         
-        self.damage=1
+        self.damage=5
         
         self.hit_box=[-3,-3,6,6]
         self.my_rect=pygame.Rect(self.x+self.hit_box[0], self.y+self.hit_box[1],
@@ -225,4 +225,47 @@ class Bullet():
     def draw(self, DISPLAY):
         
         pygame.draw.circle(DISPLAY, (255,255,255), [self.x,self.y], 3)
+
+class XP_ORB():
+    def __init__(self, master, xy, exp):
+        self.master=master
+        self.speed=4
+        
+        self.x=xy[0]
+        self.y=xy[1]
+        
+        self.exp=exp
+                
+        self.life=1
+        
+        
+        
+    def logic(self):
+        self.target=(self.master.PLAYER.x,self.master.PLAYER.y)
+            
+        target_vector=(0,0)
+        
+        x_dif= self.target[0]-self.x
+        y_dif= self.target[1]-self.y
+        
+        total_dif=abs(x_dif)+abs(y_dif)
+        
+        x_proportion=x_dif/total_dif
+        y_proportion=y_dif/total_dif
+        
+        target_vector= (x_proportion, y_proportion)
+        
+        if total_dif<3:
+            print('EXP UP: ', self.exp)
+            self.life=0
+            
+        #move orb
+        self.x+=target_vector[0]*self.speed
+        self.y+=target_vector[1]*self.speed
+    
+        
+    
+    def draw(self, DISPLAY):
+        
+        pygame.draw.circle(DISPLAY, (0,255,120), [self.x,self.y], 2)
         

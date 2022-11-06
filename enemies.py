@@ -4,7 +4,7 @@ Created on Sat Nov  5 11:01:00 2022
 
 @author: Zachary Mark
 """
-import pygame, particles, random
+import pygame, particles, random, player
 
 def check_bullet_collides(enemy, master):
     damage=0
@@ -30,6 +30,7 @@ class Zombie():
         
         self.alive=True
         
+        self.exp_value=5
         #engine setup
         self.del_self=False
         self.death_counter=60+random.randint(0,1200)
@@ -80,6 +81,7 @@ class Zombie():
                 
             #check for life
             if self.hp<0:
+                self.master.PARTICLES.append(player.XP_ORB(self.master, (self.x,self.y), self.exp_value))
                 self.alive=False
                 for i in range(20):
                     self.master.PARTICLES.append(particles.Blood((self.x,self.y)))
