@@ -6,6 +6,8 @@ Created on Sat Nov  5 11:01:00 2022
 """
 import pygame, particles, random, player
 
+from math import sqrt
+
 def check_bullet_collides(enemy, master):
     damage=0
     enemy.my_rect=pygame.Rect(enemy.x+enemy.hit_box[0], enemy.y+enemy.hit_box[1],
@@ -31,6 +33,9 @@ class Zombie():
         self.alive=True
         
         self.exp_value=5
+        
+        self.player_aware=False
+        self.player_awareness_distance=200
         #engine setup
         self.del_self=False
         self.death_counter=60+random.randint(0,1200)
@@ -68,16 +73,25 @@ class Zombie():
             
             target_vector= (x_proportion, y_proportion)
             
-            #update zombie facing
-            if x_proportion>0:
-                self.facing="Right"
+            #distance_from target
+            distance=sqrt(abs(x_dif)**2+abs(y_dif)**2)
+            
+            if self.player_aware==False:
+                if distance< self.player_awareness_distance:
+                    self.player_aware=True
             else:
-                self.facing="Left"
             
-            #move zombie
-            self.x+=target_vector[0]*self.speed
-            self.y+=target_vector[1]*self.speed
             
+                #update zombie facing
+                if x_proportion>0:
+                    self.facing="Right"
+                else:
+                    self.facing="Left"
+                
+                #move zombie
+                self.x+=target_vector[0]*self.speed
+                self.y+=target_vector[1]*self.speed
+                
                 
             #check for life
             if self.hp<0:
@@ -123,4 +137,7 @@ class Zombie():
         else:
             
             DISPLAY.blit( self.master.sprites.zombie_sheet[self.facing], (self.x,self.y))
+        
+        if self.player_aware==False:
+            pygame.draw.circle(DISPLAY, (0,0,255), [self.x,self.y], self.player_awareness_distance, 1)
         

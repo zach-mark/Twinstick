@@ -8,7 +8,7 @@ import pygame, random
 
 import particles
 
-from math import sqrt, pi, sin
+from math import sqrt, pi, sin, cos, radians
 
 import numpy as np
 
@@ -172,13 +172,21 @@ class Player():
         
         #draw attack range
         pygame.draw.circle(DISPLAY, (0,0,0), [self.x,self.y], self.bullet_speed*self.bullet_life, 1)
+        
+        #draw aim line        
+        theta_rad = pi/2 - radians(self.gun_angle+90)
+        x_targ= self.x + self.bullet_speed*self.bullet_life * cos(theta_rad)
+        y_targ= self.y + self.bullet_speed*self.bullet_life * sin(theta_rad)
+
+        pygame.draw.line(DISPLAY, (255,0,0),(self.x,self.y),(x_targ,y_targ),1)
+        
 
 
 class Bullet():
     def __init__(self, xy, angle, speed, life):
         #bullet_speed
         self.speed=speed
-        self.life=life
+        self.life=life+1
         
         self.x=xy[0]
         self.y=xy[1]
