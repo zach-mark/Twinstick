@@ -4,7 +4,9 @@ Created on Fri Nov  4 13:02:05 2022
 
 @author: Zachary Mark
 """
-import pygame
+import pygame, random
+
+import particles
 
 from math import sqrt, pi, sin
 
@@ -20,16 +22,22 @@ class Player():
         #player stats
         self.speed=5
         
+        self.absorb_range=100
         self.x=30
         self.y=30
         
-        self.shot_cooldown=2
+        self.shot_cooldown=30
         self.cooldown_timer=0
         
-        self.bullet_mode="Spread4"
+        self.bullet_mode="Normal"
+        
+        self.bullet_speed=10
+        self.bullet_life=40
+        
         #game engine setup
         self.master=master
         self.can_shoot=False
+        
         
         #animation_setup
         self.facing="Right"
@@ -40,6 +48,13 @@ class Player():
         self.gun_out=False
         
         self.gun_angle=0
+        
+        self.exp=0
+    def exp_up(self, exp):
+        self.exp+=exp
+        
+        print(self.exp)
+        
     def user_inputs(self, axis_a,axis_b):
         """
         Parameters
@@ -109,33 +124,7 @@ class Player():
                 self.can_shoot=False
                 self.cooldown_timer=self.shot_cooldown
                 if self.bullet_mode=="Normal":
-                    self.master.BULLETS.append(
-                        Bullet((self.x,self.y),
-                               angle_shot))
-                
-                elif self.bullet_mode=="Spread2":
-                    
-                    self.master.BULLETS.append(
-                        Bullet((self.x,self.y),
-                               angle_shot-5))
-                    self.master.BULLETS.append(
-                        Bullet((self.x,self.y),
-                               angle_shot+5))
-                
-                elif self.bullet_mode=="Spread4":
-                    
-                    self.master.BULLETS.append(
-                        Bullet((self.x,self.y),
-                               angle_shot-5))
-                    self.master.BULLETS.append(
-                        Bullet((self.x,self.y),
-                               angle_shot+5))
-                    self.master.BULLETS.append(
-                        Bullet((self.x,self.y),
-                               angle_shot-2.5))
-                    self.master.BULLETS.append(
-                        Bullet((self.x,self.y),
-                               angle_shot+2.5))
+                    self.master.BULLETS.append(Bullet((self.x,self.y),angle_shot,self.bullet_speed, self.bullet_life))
         else:
             self.gun_out=False
                 
@@ -176,13 +165,20 @@ class Player():
         DISPLAY.blit( self.master.sprites.character_sheet[self.facing][0], (self.x,self.y))
         if self.gun_out==True:
             DISPLAY.blit(arm_rotate, (self.x+x,self.y-y))
+            
+        
+        #draw absorb range
+        pygame.draw.circle(DISPLAY, (0,255,120), [self.x,self.y], self.absorb_range, 1)
+        
+        #draw attack range
+        pygame.draw.circle(DISPLAY, (0,0,0), [self.x,self.y], self.bullet_speed*self.bullet_life, 1)
 
 
 class Bullet():
-    def __init__(self, xy, angle):
+    def __init__(self, xy, angle, speed, life):
         #bullet_speed
-        self.speed=10
-        self.life=45
+        self.speed=speed
+        self.life=life
         
         self.x=xy[0]
         self.y=xy[1]
@@ -235,37 +231,62 @@ class XP_ORB():
         self.y=xy[1]
         
         self.exp=exp
-                
+        
+        self.phase=0
+        
+        self.phase_ticks=15
         self.life=1
         
+        self.vector= (random.random()*2-1,random.random()*2-1)
         
         
     def logic(self):
-        self.target=(self.master.PLAYER.x,self.master.PLAYER.y)
+        
+        if self.phase==0:
+            self.phase_ticks-=1
+            if self.phase_ticks<1:
+                self.phase=1
+                self.speed=0
+            self.x+=self.vector[0]*self.speed
+            self.y+=self.vector[1]*self.speed
             
-        target_vector=(0,0)
-        
-        x_dif= self.target[0]-self.x
-        y_dif= self.target[1]-self.y
-        
-        total_dif=abs(x_dif)+abs(y_dif)
-        
-        x_proportion=x_dif/total_dif
-        y_proportion=y_dif/total_dif
-        
-        target_vector= (x_proportion, y_proportion)
-        
-        if total_dif<3:
-            print('EXP UP: ', self.exp)
-            self.life=0
+            self.speed*=0.99
             
-        #move orb
-        self.x+=target_vector[0]*self.speed
-        self.y+=target_vector[1]*self.speed
+        else:
+            self.target=(self.master.PLAYER.x,self.master.PLAYER.y)
+                
+            target_vector=(0,0)
+            
+            x_dif= self.target[0]-self.x
+            y_dif= self.target[1]-self.y
+            
+            total_dif=abs(x_dif)+abs(y_dif)
+            
+            distance=sqrt(abs(x_dif)**2+abs(y_dif)**2)
+            
+            if distance<=self.master.PLAYER.absorb_range:
+                self.speed=4
+                self.phase=2
+            else:
+                if self.phase==1:
+                    self.speed=0
+            
+            x_proportion=x_dif/total_dif
+            y_proportion=y_dif/total_dif
+            
+            target_vector= (x_proportion, y_proportion)
+            
+            if total_dif<3:
+                self.master.PLAYER.exp_up(self.exp)
+                self.life=0
+                
+            #move orb
+            self.x+=target_vector[0]*self.speed
+            self.y+=target_vector[1]*self.speed
+            
     
         
     
     def draw(self, DISPLAY):
-        
         pygame.draw.circle(DISPLAY, (0,255,120), [self.x,self.y], 2)
         

@@ -42,4 +42,33 @@ class Blood():
     def draw(self, DISPLAY):
         pygame.draw.rect(DISPLAY, self.color, (self.x,self.y,self.width,self.height))
         
+
+        
+        
+class Exp_Gain():
+    def __init__(self, xy):
+        self.size=1
+        
+        self.color= (0,
+                     random.randint(180, 255),
+                     random.randint(0, 120))
+        
+        self.vector= (random.random()*2-1,random.random()*2-1)
+        
+        self.life=random.randint(0, 120)
+        
+        self.x=xy[0]
+        self.y=xy[1]
+        self.speed=random.random()*5
+        
+    def logic(self):
+        self.x+=self.vector[0]*self.speed
+        self.y+=self.vector[1]*self.speed
+        
+        
+        self.life-=1
+        
+    def draw(self, DISPLAY):
+        pygame.draw.circle(DISPLAY, self.color, (self.x,self.y), self.size)
+        
         

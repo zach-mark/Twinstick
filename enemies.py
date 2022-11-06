@@ -81,7 +81,13 @@ class Zombie():
                 
             #check for life
             if self.hp<0:
-                self.master.PARTICLES.append(player.XP_ORB(self.master, (self.x,self.y), self.exp_value))
+                j=0
+                while j<self.exp_value:
+                    self.master.PARTICLES.append(player.XP_ORB(self.master, (self.x,self.y), 1))
+                    j+=1
+                for i in range(0,20):
+                    self.master.PARTICLES.append(particles.Exp_Gain((self.x,self.y)))
+                    
                 self.alive=False
                 for i in range(20):
                     self.master.PARTICLES.append(particles.Blood((self.x,self.y)))

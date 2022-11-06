@@ -101,6 +101,8 @@ def main():
     rendering()
     CLOCK.tick(FPS)
     
+    pygame.display.set_caption("Twinstick: "+str(round(CLOCK.get_fps(),0)))
+    
 def user_input():
     global AXIS_A, AXIS_B
     for event in pygame.event.get():
@@ -174,7 +176,7 @@ def logic():
         
         
     
-    new_spawn=random.randint(0, 4)
+    new_spawn=random.randint(0, 600)
     if new_spawn==1:
         game.ENEMIES.append(enemies.Zombie(game,(random.randint(0, SCREEN_SIZE[0]),
                                                  random.randint(0, SCREEN_SIZE[1]))))
