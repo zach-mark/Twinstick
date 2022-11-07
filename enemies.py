@@ -35,6 +35,8 @@ class Zombie():
         self.exp_value=5
         
         self.player_aware=False
+        self.aimless_target=(random.randint(0, self.master.level_dim[0]),
+                             random.randint(0, self.master.level_dim[1]))
         self.player_awareness_distance=200
         #engine setup
         self.del_self=False
@@ -79,6 +81,37 @@ class Zombie():
             if self.player_aware==False:
                 if distance< self.player_awareness_distance:
                     self.player_aware=True
+                else:
+                    
+                    self.target=self.aimless_target
+                
+                    target_vector=(0,0)
+                    
+                    x_dif= self.target[0]-self.x
+                    y_dif= self.target[1]-self.y
+                    
+                    total_dif=abs(x_dif)+abs(y_dif)
+                    
+                    x_proportion=x_dif/total_dif
+                    y_proportion=y_dif/total_dif
+                    
+                    target_vector= (x_proportion, y_proportion)
+                    
+                    #update zombie facing
+                    if x_proportion>0:
+                        self.facing="Right"
+                    else:
+                        self.facing="Left"
+                    
+                    #move zombie
+                    self.x+=target_vector[0]*self.speed
+                    self.y+=target_vector[1]*self.speed
+                    #distance_from target
+                    distance=sqrt(abs(x_dif)**2+abs(y_dif)**2)
+                    
+                    if distance<10:
+                        self.aimless_target = (random.randint(0, self.master.level_dim[0]),
+                                                          random.randint(0, self.master.level_dim[1]))
             else:
             
             
@@ -103,6 +136,7 @@ class Zombie():
                     self.master.PARTICLES.append(particles.Exp_Gain((self.x,self.y)))
                     
                 self.alive=False
+                self.player_aware=True
                 for i in range(20):
                     self.master.PARTICLES.append(particles.Blood((self.x,self.y)))
                 death_pos=random.randint(0,1)
@@ -137,7 +171,7 @@ class Zombie():
         else:
             
             DISPLAY.blit( self.master.sprites.zombie_sheet[self.facing], (self.x,self.y))
-        
-        if self.player_aware==False:
-            pygame.draw.circle(DISPLAY, (0,0,255), [self.x,self.y], self.player_awareness_distance, 1)
-        
+        if self.master.DEBUG_MODE==True:
+            if self.player_aware==False:
+                pygame.draw.circle(DISPLAY, (0,0,255), [self.x,self.y], self.player_awareness_distance, 1)
+            

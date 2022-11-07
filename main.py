@@ -9,14 +9,19 @@ TWINSTICK
 
 import pygame, sys, random
 
-import player, sprite_sys, enemies
+import player, sprite_sys, enemies, level_objects
 
 pygame.init()
+
+DEBUG_MODE=False
+
+
+MOUSE_POS=(0,0)
 
 # Setup the screen
 SCREEN_SIZE=[800,600]
 SCREEN = pygame.display.set_mode(SCREEN_SIZE)
-#SCREEN = pygame.display.set_mode(SCREEN_SIZE, pygame.FULLSCREEN)
+SCREEN = pygame.display.set_mode(SCREEN_SIZE, pygame.FULLSCREEN)
 
 pygame.display.set_caption("Twinstick")
 
@@ -38,12 +43,15 @@ FPS= 60
 #Game Instances
 class GAME():
     def __init__(self):
+        self.DEBUG_MODE=DEBUG_MODE
         self.paused=False
         
+        self.level_dim=SCREEN_SIZE
         self.sprites=sprite_sys.Sprites()
         self.ENEMIES=[]
         self.BULLETS=[]
         self.PLAYER=player.Player(self)
+        self.OBSTACLES=[]
         
         self.enemy_rects=[]
         self.bullet_rects=[]
@@ -84,6 +92,21 @@ class GAME():
             self.bullet_rects.append(rect)
             bullet_index=len(self.bullet_rects)-1
             self.bullet_dict[bullet_index]=bullet
+            
+        #object_rects
+        self.obstacle_rects=[]
+        for blocks in self.OBSTACLES:
+            rect=blocks.my_rect
+            self.obstacle_rects.append(rect)
+            
+    def render_level(self):
+        for i in range(0, self.level_dim[0], 32):
+            pygame.draw.line(SCREEN, (120,120,120), (i,0), (i, self.level_dim[1]))
+        
+        
+        for i in range(0, self.level_dim[1], 32):
+            pygame.draw.line(SCREEN, (120,120,120), (0,i), (self.level_dim[0], i))
+            
         
         
 
@@ -104,7 +127,9 @@ def main():
     pygame.display.set_caption("Twinstick: "+str(round(CLOCK.get_fps(),0)))
     
 def user_input():
-    global AXIS_A, AXIS_B
+    global AXIS_A, AXIS_B, MOUSE_POS
+    MOUSE_POS=pygame.mouse.get_pos()
+    
     for event in pygame.event.get():
         if event.type == pygame.QUIT: # If user clicked close.
             session_kill()
@@ -114,6 +139,13 @@ def user_input():
                 print("Pause")
         elif event.type == pygame.JOYBUTTONUP:
             pass
+        
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            if event.button==1:
+                block_x=(MOUSE_POS[0]//32)*32
+                block_y=(MOUSE_POS[1]//32)*32
+                
+                game.OBSTACLES.append(level_objects.Block((block_x,block_y)))
     
     
     #joystick code
@@ -142,10 +174,15 @@ def user_input():
 
 def logic():
     
+    
     game.PLAYER.logic()
     
     game.update_collisions()
     
+    for stuff in game.OBSTACLES:
+        stuff.logic()
+        
+        
     for bullet in game.BULLETS:
         bullet.logic()
         
@@ -176,7 +213,7 @@ def logic():
         
         
     
-    new_spawn=random.randint(0, 600)
+    new_spawn=random.randint(0, 20)
     if new_spawn==1:
         game.ENEMIES.append(enemies.Zombie(game,(random.randint(0, SCREEN_SIZE[0]),
                                                  random.randint(0, SCREEN_SIZE[1]))))
@@ -184,8 +221,12 @@ def logic():
     
 
 def rendering():
-    SCREEN.fill((200,191,231))
+    SCREEN.fill((255,255,255))
     
+    for stuff in game.OBSTACLES:
+        stuff.draw(SCREEN)
+        
+    game.render_level()
     for particle in game.PARTICLES:
         particle.draw(SCREEN)
         

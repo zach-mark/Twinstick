@@ -26,13 +26,13 @@ class Player():
         self.x=30
         self.y=30
         
-        self.shot_cooldown=30
+        self.shot_cooldown=10
         self.cooldown_timer=0
         
         self.bullet_mode="Normal"
         
         self.bullet_speed=10
-        self.bullet_life=40
+        self.bullet_life=30
         
         #game engine setup
         self.master=master
@@ -41,8 +41,10 @@ class Player():
         
         #animation_setup
         self.facing="Right"
+        self.move_face="Right"
+        self.moving=False
         self.frame=0
-        self.frame_timing=15
+        self.frame_timing=5
         self.frame_tick=0
         self.arm_distance=15
         self.gun_out=False
@@ -53,7 +55,6 @@ class Player():
     def exp_up(self, exp):
         self.exp+=exp
         
-        print(self.exp)
         
     def user_inputs(self, axis_a,axis_b):
         """
@@ -69,13 +70,23 @@ class Player():
         None.
 
         """
+        self.moving=False
         
         #MOVEMENT INPUT
         if abs(axis_a[0])>moving_antidrift_setting:
                         
             self.x+=axis_a[0]*self.speed
+            if axis_a[0]>0:
+                self.move_face="Right"
+            else:
+                self.move_face="Left"
+            
+            self.moving=True
+                
         if abs(axis_a[1])>moving_antidrift_setting:
             self.y+=axis_a[1]*self.speed
+            
+            self.moving=True
         
         #SHOOTING INPUT
         trying_to_shoot=False
@@ -124,7 +135,7 @@ class Player():
                 self.can_shoot=False
                 self.cooldown_timer=self.shot_cooldown
                 if self.bullet_mode=="Normal":
-                    self.master.BULLETS.append(Bullet((self.x,self.y),angle_shot,self.bullet_speed, self.bullet_life))
+                    self.master.BULLETS.append(Bullet(self.master, (self.x,self.y),angle_shot,self.bullet_speed, self.bullet_life))
         else:
             self.gun_out=False
                 
@@ -137,8 +148,19 @@ class Player():
             self.cooldown_timer-=1
         else:
             self.can_shoot=True
-    
+        
+        if self.moving==True:
+            self.frame_tick+=1
+            if self.frame_tick>=self.frame_timing:
+                self.frame_tick=0
+                self.frame+=1
+                if self.frame>3:
+                    self.frame=0   
+        else:
+            self.frame=0   
+                    
     def draw(self, DISPLAY):
+        
         
         if 90>=self.gun_angle>=0 or 270<self.gun_angle<=360:
             arm_rotate=pygame.transform.rotate(self.master.sprites.character_sheet["Right Arm"], self.gun_angle)
@@ -160,30 +182,35 @@ class Player():
         
         x=sqrt(hypotenuse**2 - y**2)*val
         
-        
-        
-        DISPLAY.blit( self.master.sprites.character_sheet[self.facing][0], (self.x,self.y))
+        if self.gun_out==False:
+            self.facing=self.move_face
+        DISPLAY.blit( self.master.sprites.character_sheet[self.facing][self.frame], (self.x,self.y))
         if self.gun_out==True:
             DISPLAY.blit(arm_rotate, (self.x+x,self.y-y))
+        
+            
             
         
-        #draw absorb range
-        pygame.draw.circle(DISPLAY, (0,255,120), [self.x,self.y], self.absorb_range, 1)
-        
-        #draw attack range
-        pygame.draw.circle(DISPLAY, (0,0,0), [self.x,self.y], self.bullet_speed*self.bullet_life, 1)
-        
-        #draw aim line        
-        theta_rad = pi/2 - radians(self.gun_angle+90)
-        x_targ= self.x + self.bullet_speed*self.bullet_life * cos(theta_rad)
-        y_targ= self.y + self.bullet_speed*self.bullet_life * sin(theta_rad)
-
-        pygame.draw.line(DISPLAY, (255,0,0),(self.x,self.y),(x_targ,y_targ),1)
+        if self.master.DEBUG_MODE==True:
+            #draw absorb range
+            pygame.draw.circle(DISPLAY, (0,255,120), [self.x,self.y], self.absorb_range, 1)
+            
+            #draw attack range
+            pygame.draw.circle(DISPLAY, (0,0,0), [self.x,self.y], self.bullet_speed*self.bullet_life, 1)
+            
+            #draw aim line        
+            theta_rad = pi/2 - radians(self.gun_angle+90)
+            x_targ= self.x + self.bullet_speed*self.bullet_life * cos(theta_rad)
+            y_targ= self.y + self.bullet_speed*self.bullet_life * sin(theta_rad)
+    
+            pygame.draw.line(DISPLAY, (255,0,0),(self.x,self.y),(x_targ,y_targ),1)
         
 
 
 class Bullet():
-    def __init__(self, xy, angle, speed, life):
+    def __init__(self, master, xy, angle, speed, life):
+        
+        self.master=master
         #bullet_speed
         self.speed=speed
         self.life=life+1
@@ -213,7 +240,7 @@ class Bullet():
                 
         self.vector=(x,-y)
         
-        
+    
         
     def logic(self):
         self.life-=1
@@ -223,24 +250,33 @@ class Bullet():
         
         self.my_rect=pygame.Rect(self.x+self.hit_box[0], self.y+self.hit_box[1],
                                  self.hit_box[2], self.hit_box[3]) 
+        self.check_object_collides()
+        
+    def check_object_collides(self):
         
         
+        collides=self.my_rect.collidelist(self.master.obstacle_rects)
+        if collides!=-1:
+            self.life=0
     
     def draw(self, DISPLAY):
         
-        pygame.draw.circle(DISPLAY, (255,255,255), [self.x,self.y], 3)
+        pygame.draw.circle(DISPLAY, (20,20,20), [self.x,self.y], 3)
 
 class XP_ORB():
     def __init__(self, master, xy, exp):
         self.master=master
-        self.speed=4
+        self.speed=random.randint(3, 5)
         
         self.x=xy[0]
         self.y=xy[1]
         
         self.exp=exp
-        
+        self.color= [0,
+                     random.randint(180, 255),
+                     random.randint(25, 120)]
         self.phase=0
+        self.worble=[random.randint(0,9),0.1]
         
         self.phase_ticks=15
         self.life=1
@@ -258,7 +294,7 @@ class XP_ORB():
             self.x+=self.vector[0]*self.speed
             self.y+=self.vector[1]*self.speed
             
-            self.speed*=0.99
+            self.speed*=0.85
             
         else:
             self.target=(self.master.PLAYER.x,self.master.PLAYER.y)
@@ -278,6 +314,16 @@ class XP_ORB():
             else:
                 if self.phase==1:
                     self.speed=0
+                    self.worble[0]+=self.worble[1]
+                    self.y+=self.worble[1]
+                    self.color[2]+=self.worble[1]*10
+                    if self.color[2]<0:
+                        self.color[2]=0
+                    if self.worble[0]>10:
+                        self.worble[1]=-0.1
+                    elif self.worble[0]<1:
+                        self.worble[1]=0.1
+                        
             
             x_proportion=x_dif/total_dif
             y_proportion=y_dif/total_dif
@@ -296,5 +342,6 @@ class XP_ORB():
         
     
     def draw(self, DISPLAY):
-        pygame.draw.circle(DISPLAY, (0,255,120), [self.x,self.y], 2)
+        pygame.draw.circle(DISPLAY,(0,0,0), [self.x,self.y], 4)
+        pygame.draw.circle(DISPLAY, self.color, [self.x,self.y], 2)
         

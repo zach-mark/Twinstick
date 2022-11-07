@@ -49,3 +49,5 @@ class Sprites():
                                   
                               }
         
+        icon_sheet=pygame.image.load("Sprites/In_Game_Icons.png")
+        self.icons={"Enemy_Alert"   : icon_sheet.subsurface(0,0,17,29)}
