@@ -29,9 +29,23 @@ def check_bullet_collides(enemy, master):
     return damage
 
 class Zombie():
-    def __init__(self, master, xy):
-        self.hp=10
-        self.speed=0.5
+    def __init__(self, master, xy, zombie_type=0):
+        
+        if zombie_type==0:
+            self.hp=10
+            self.speed=0.5
+            self.sprite=master.sprites.zombie_sheet
+            self.hit_box=[0,0,13,24]
+            self.frame_timing=15
+            
+        else:
+            self.hp=5
+            self.speed=3
+            self.sprite=master.sprites.zambini_sheet
+            self.hit_box=[0,0,14,19]
+            self.frame_timing=5
+        
+        
         self.master=master
         
         self.x=xy[0]
@@ -58,7 +72,6 @@ class Zombie():
         self.facing="Right"
         self.frame=0
         self.frame_tick=0
-        self.frame_timing=15
     
     def logic(self):
         
@@ -184,10 +197,10 @@ class Zombie():
     def draw(self, DISPLAY):
         
         if self.alive==True:
-            DISPLAY.blit( self.master.sprites.zombie_sheet[self.facing][self.frame], (self.x,self.y))
+            DISPLAY.blit( self.sprite[self.facing][self.frame], (self.x,self.y))
         else:
             
-            DISPLAY.blit( self.master.sprites.zombie_sheet[self.facing], (self.x,self.y))
+            DISPLAY.blit( self.sprite[self.facing], (self.x,self.y))
         if self.master.DEBUG_MODE==True:
             if self.player_aware==False:
                 pygame.draw.circle(DISPLAY, (0,0,255), [self.x,self.y], self.player_awareness_distance, 1)

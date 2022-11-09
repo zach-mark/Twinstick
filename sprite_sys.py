@@ -30,24 +30,42 @@ class Sprites():
                               }
         
         #Zombie
-        player_sheet=pygame.image.load("Sprites/Zombie_Sheet.png").convert_alpha()
+        zombie_sheet=pygame.image.load("Sprites/Zombie_Sheet.png").convert_alpha()
         
         
-        self.zombie_sheet={"Right"   : [player_sheet.subsurface(pygame.Rect(0,0,14,24)),
-                                           player_sheet.subsurface(pygame.Rect(15,0,14,24)),
-                                           player_sheet.subsurface(pygame.Rect(0,0,14,24)),
-                                           player_sheet.subsurface(pygame.Rect(30,0,14,24))],
-                           "Left"    : [player_sheet.subsurface(pygame.Rect(0,26,14,24)),
-                                           player_sheet.subsurface(pygame.Rect(15,26,14,24)),
-                                           player_sheet.subsurface(pygame.Rect(0,26,14,24)),
-                                           player_sheet.subsurface(pygame.Rect(30,26,14,24))],
+        self.zombie_sheet={"Right"   : [zombie_sheet.subsurface(pygame.Rect(0,0,14,24)),
+                                           zombie_sheet.subsurface(pygame.Rect(15,0,14,24)),
+                                           zombie_sheet.subsurface(pygame.Rect(0,0,14,24)),
+                                           zombie_sheet.subsurface(pygame.Rect(30,0,14,24))],
+                           "Left"    : [zombie_sheet.subsurface(pygame.Rect(0,26,14,24)),
+                                           zombie_sheet.subsurface(pygame.Rect(15,26,14,24)),
+                                           zombie_sheet.subsurface(pygame.Rect(0,26,14,24)),
+                                           zombie_sheet.subsurface(pygame.Rect(30,26,14,24))],
                            
-                           "Right Belly"     : player_sheet.subsurface(pygame.Rect(71,0,25,24)),
-                           "Right Back"     : player_sheet.subsurface(pygame.Rect(45,0,25,24)),
-                          "Left Belly"     : player_sheet.subsurface(pygame.Rect(71,26,25,24)),
-                          "Left Back"     : player_sheet.subsurface(pygame.Rect(45,26,25,24))
+                           "Right Belly"     : zombie_sheet.subsurface(pygame.Rect(71,0,25,24)),
+                           "Right Back"     : zombie_sheet.subsurface(pygame.Rect(45,0,25,24)),
+                          "Left Belly"     : zombie_sheet.subsurface(pygame.Rect(71,26,25,24)),
+                          "Left Back"     : zombie_sheet.subsurface(pygame.Rect(45,26,25,24))
                                   
                               }
         
+        self.zambini_sheet={"Right"   :   [zombie_sheet.subsurface(pygame.Rect(0,52,14,19)),
+                                           zombie_sheet.subsurface(pygame.Rect(15,52,14,19)),
+                                           zombie_sheet.subsurface(pygame.Rect(0,52,14,19)),
+                                           zombie_sheet.subsurface(pygame.Rect(30,52,14,19))],
+                            
+                           "Left"    : [zombie_sheet.subsurface(pygame.Rect(0,72,14,19)),
+                                           zombie_sheet.subsurface(pygame.Rect(15,72,14,19)),
+                                           zombie_sheet.subsurface(pygame.Rect(0,72,14,19)),
+                                           zombie_sheet.subsurface(pygame.Rect(30,72,14,19))],
+                           
+                           "Right Belly"     : zombie_sheet.subsurface(pygame.Rect(45,52,19,19)),
+                           "Right Back"     : zombie_sheet.subsurface(pygame.Rect(65,52,19,19)),
+                          "Left Belly"     : zombie_sheet.subsurface(pygame.Rect(45,72,19,19)),
+                          "Left Back"     : zombie_sheet.subsurface(pygame.Rect(65,72,19,19))
+                                  
+                              }
+                
+                
         icon_sheet=pygame.image.load("Sprites/In_Game_Icons.png")
         self.icons={"Enemy_Alert"   : icon_sheet.subsurface(0,0,17,29)}

@@ -13,7 +13,7 @@ import player, sprite_sys, enemies, level_objects
 
 pygame.init()
 
-DEBUG_MODE=True
+DEBUG_MODE=False
 
 
 MOUSE_POS=(0,0)
@@ -213,10 +213,11 @@ def logic():
         
         
     
-    new_spawn=random.randint(0, 60)
+    new_spawn=random.randint(0, 30)
     if new_spawn==1:
         game.ENEMIES.append(enemies.Zombie(game,(random.randint(0, SCREEN_SIZE[0]),
-                                                 random.randint(0, SCREEN_SIZE[1]))))
+                                                 random.randint(0, SCREEN_SIZE[1])),
+                                           random.randint(0, 1)))
     
     
 
