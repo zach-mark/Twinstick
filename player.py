@@ -26,13 +26,13 @@ class Player():
         self.x=30
         self.y=30
         
-        self.shot_cooldown=10
+        self.shot_cooldown=5
         self.cooldown_timer=0
         
         self.bullet_mode="Normal"
         
-        self.bullet_speed=10
-        self.bullet_life=30
+        self.bullet_speed=12
+        self.bullet_life=80
         
         #game engine setup
         self.master=master
@@ -135,7 +135,7 @@ class Player():
                 self.can_shoot=False
                 self.cooldown_timer=self.shot_cooldown
                 if self.bullet_mode=="Normal":
-                    self.master.BULLETS.append(Bullet(self.master, (self.x,self.y),angle_shot,self.bullet_speed, self.bullet_life))
+                    self.master.BULLETS.append(Bullet(self.master, (self.x,self.y),angle_shot,self.bullet_speed, self.bullet_life, 5))
         else:
             self.gun_out=False
                 
@@ -208,7 +208,7 @@ class Player():
 
 
 class Bullet():
-    def __init__(self, master, xy, angle, speed, life):
+    def __init__(self, master, xy, angle, speed, life, penetration=0):
         
         self.master=master
         #bullet_speed
@@ -219,12 +219,13 @@ class Bullet():
         self.y=xy[1]
         
         self.damage=5
+        self.penetration=penetration
         
         self.hit_box=[-3,-3,6,6]
         self.my_rect=pygame.Rect(self.x+self.hit_box[0], self.y+self.hit_box[1],
                                  self.hit_box[2], self.hit_box[3]) 
         
-    
+        
         theta=(angle/180)*pi
         
         if 270>=angle>=90:

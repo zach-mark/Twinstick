@@ -8,6 +8,9 @@ import pygame, particles, random, player
 
 from math import sqrt
 
+
+POST_HIT_SAFETY_TIME=5
+
 def check_bullet_collides(enemy, master):
     damage=0
     enemy.my_rect=pygame.Rect(enemy.x+enemy.hit_box[0], enemy.y+enemy.hit_box[1],
@@ -17,8 +20,12 @@ def check_bullet_collides(enemy, master):
     if collides!=-1:
         bullet=master.bullet_dict[collides]
         damage= bullet.damage
-        bullet.life=0
-        
+        if bullet.penetration<1:
+            bullet.life=0
+        else:
+            bullet.penetration-=1
+        enemy.post_hit_safe=True
+        enemy.post_hit_tickdown=POST_HIT_SAFETY_TIME
     return damage
 
 class Zombie():
@@ -31,6 +38,9 @@ class Zombie():
         self.y=xy[1]
         
         self.alive=True
+        self.post_hit_safe=False
+        self.post_hit_tickdown=0
+        
         
         self.exp_value=5
         
@@ -53,11 +63,18 @@ class Zombie():
     def logic(self):
         
         if self.alive==True:
-            damage=check_bullet_collides(self, self.master)
-            if damage!=0:
-                self.hp-=damage
-                for i in range(0, 5+random.randint(0, 4)):
-                    self.master.PARTICLES.append(particles.Blood((self.x,self.y)))
+            
+            if self.post_hit_safe==False:
+                damage=check_bullet_collides(self, self.master)
+                if damage!=0:
+                    self.hp-=damage
+                    for i in range(0, 5+random.randint(0, 4)):
+                        self.master.PARTICLES.append(particles.Blood((self.x,self.y)))
+            else:
+                
+                self.post_hit_tickdown-=1
+                if self.post_hit_tickdown<1:
+                    self.post_hit_safe=False
                 
                 
             #find zombie target and vector

@@ -13,7 +13,7 @@ import player, sprite_sys, enemies, level_objects
 
 pygame.init()
 
-DEBUG_MODE=False
+DEBUG_MODE=True
 
 
 MOUSE_POS=(0,0)
@@ -21,7 +21,7 @@ MOUSE_POS=(0,0)
 # Setup the screen
 SCREEN_SIZE=[800,600]
 SCREEN = pygame.display.set_mode(SCREEN_SIZE)
-SCREEN = pygame.display.set_mode(SCREEN_SIZE, pygame.FULLSCREEN)
+#SCREEN = pygame.display.set_mode(SCREEN_SIZE, pygame.FULLSCREEN)
 
 pygame.display.set_caption("Twinstick")
 
@@ -213,7 +213,7 @@ def logic():
         
         
     
-    new_spawn=random.randint(0, 20)
+    new_spawn=random.randint(0, 60)
     if new_spawn==1:
         game.ENEMIES.append(enemies.Zombie(game,(random.randint(0, SCREEN_SIZE[0]),
                                                  random.randint(0, SCREEN_SIZE[1]))))
