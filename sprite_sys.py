@@ -69,3 +69,6 @@ class Sprites():
                 
         icon_sheet=pygame.image.load("Sprites/In_Game_Icons.png")
         self.icons={"Enemy_Alert"   : icon_sheet.subsurface(0,0,17,29)}
+        
+        power_up_sheet=pygame.image.load("Sprites/power_up_sprites.png")
+        self.power_up={'XP_Magnet' : power_up_sheet}

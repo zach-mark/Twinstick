@@ -59,6 +59,8 @@ class GAME():
         self.obstacle_rects=[]
         
         self.PARTICLES=[]
+        
+        self.PARTICLES.append(player.Magnet_Power_Up(self, (300,300)))
     def pause(self):
         
         if self.paused==True:
@@ -213,7 +215,7 @@ def logic():
         
         
     
-    new_spawn=random.randint(0, 30)
+    new_spawn=random.randint(0, 120)
     if new_spawn==1:
         game.ENEMIES.append(enemies.Zombie(game,(random.randint(0, SCREEN_SIZE[0]),
                                                  random.randint(0, SCREEN_SIZE[1])),

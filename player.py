@@ -51,6 +51,11 @@ class Player():
         
         self.gun_angle=0
         
+        #self_power_up_effects
+        self.active_effects={}
+        self.magnet_exp_on=False
+        self.magnet_exp_timer=0
+        
         self.exp=0
     def exp_up(self, exp):
         self.exp+=exp
@@ -158,6 +163,8 @@ class Player():
                     self.frame=0   
         else:
             self.frame=0   
+            
+        self.power_up_effects()
                     
     def draw(self, DISPLAY):
         
@@ -204,6 +211,19 @@ class Player():
             y_targ= self.y + self.bullet_speed*self.bullet_life * sin(theta_rad)
     
             pygame.draw.line(DISPLAY, (255,0,0),(self.x,self.y),(x_targ,y_targ),1)
+            
+    
+    def power_up_effects(self):
+        if self.magnet_exp_on==True:
+            self.magnet_exp_timer-=1
+            
+            if self.magnet_exp_timer<1:
+                self.magnet_exp_timer=0
+                self.magnet_exp_on=False
+    def exp_magnet(self):
+        self.magnet_exp_on=True
+        self.magnet_exp_timer=5
+        
         
 
 
@@ -312,6 +332,10 @@ class XP_ORB():
             if distance<=self.master.PLAYER.absorb_range:
                 self.speed=4
                 self.phase=2
+            elif self.master.PLAYER.magnet_exp_on==True:
+                self.speed=4
+                self.phase=2
+                
             else:
                 if self.phase==1:
                     self.speed=0
@@ -346,3 +370,73 @@ class XP_ORB():
         pygame.draw.circle(DISPLAY,(0,0,0), [self.x,self.y], 4)
         pygame.draw.circle(DISPLAY, self.color, [self.x,self.y], 2)
         
+
+"""
+Power Ups
+"""
+
+class Magnet_Power_Up():
+    def __init__(self, master, xy):
+        self.master=master
+        self.sprite=self.master.sprites.power_up['XP_Magnet']
+        
+        
+        self.x=xy[0]
+        self.y=xy[1]
+        
+        self.phase=1
+        self.worble=[random.randint(0,9),0.1]
+        
+        self.phase_ticks=15
+        self.life=1
+        
+        self.vector= (random.random()*2-1,random.random()*2-1)
+        
+        
+    def logic(self):
+        
+    
+        self.target=(self.master.PLAYER.x,self.master.PLAYER.y)
+            
+        target_vector=(0,0)
+        
+        x_dif= self.target[0]-self.x
+        y_dif= self.target[1]-self.y
+        
+        total_dif=abs(x_dif)+abs(y_dif)
+        
+        distance=sqrt(abs(x_dif)**2+abs(y_dif)**2)
+        
+        if distance<=self.master.PLAYER.absorb_range:
+            self.speed=6
+            self.phase=2
+        else:
+            if self.phase==1:
+                self.speed=0
+                self.worble[0]+=self.worble[1]
+                self.y+=self.worble[1]
+                if self.worble[0]>10:
+                    self.worble[1]=-0.1
+                elif self.worble[0]<1:
+                    self.worble[1]=0.1
+                    
+        
+        x_proportion=x_dif/total_dif
+        y_proportion=y_dif/total_dif
+        
+        target_vector= (x_proportion, y_proportion)
+        
+        if total_dif<3:
+            self.master.PLAYER.exp_magnet()
+            self.life=0
+            
+        #move orb
+        self.x+=target_vector[0]*self.speed
+        self.y+=target_vector[1]*self.speed
+            
+    
+        
+    
+    def draw(self, DISPLAY):
+        
+        DISPLAY.blit(self.sprite, (self.x,self.y))
